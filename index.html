@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Magnetic Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magnetic Game Mobile</title>
 
 <style>
   body {
@@ -12,13 +13,14 @@
     overflow: hidden;
     font-family: sans-serif;
     color: white;
+    touch-action: none;
   }
 
   .letter {
     position: absolute;
-    font-size: 50px;
+    font-size: 42px;
     font-weight: bold;
-    transition: transform 0.2s;
+    user-select: none;
   }
 
   .win {
@@ -26,7 +28,7 @@
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 30px;
+    font-size: 24px;
     opacity: 0;
     transition: 0.3s;
   }
@@ -43,15 +45,16 @@
 <script>
 const word = "MAGNET";
 const letters = [];
+let pointer = { x: window.innerWidth/2, y: window.innerHeight/2 };
+
 const center = { x: window.innerWidth/2, y: window.innerHeight/2 };
 
 
-word.split("").forEach((char, i) => {
+word.split("").forEach(char => {
   const el = document.createElement("div");
   el.className = "letter";
   el.textContent = char;
 
- 
   el.x = Math.random() * window.innerWidth;
   el.y = Math.random() * window.innerHeight;
 
@@ -62,17 +65,17 @@ word.split("").forEach((char, i) => {
   letters.push(el);
 });
 
-// движение к курсору (магнит)
-document.addEventListener("mousemove", (e) => {
+
+function update() {
   letters.forEach(el => {
-    const dx = e.clientX - el.x;
-    const dy = e.clientY - el.y;
+    const dx = pointer.x - el.x;
+    const dy = pointer.y - el.y;
 
     const dist = Math.sqrt(dx*dx + dy*dy);
 
-    if (dist < 150) {
-      el.x += dx * 0.1;
-      el.y += dy * 0.1;
+    if (dist < 160) {
+      el.x += dx * 0.08;
+      el.y += dy * 0.08;
     }
 
     el.style.left = el.x + "px";
@@ -80,8 +83,20 @@ document.addEventListener("mousemove", (e) => {
   });
 
   checkWin();
+  requestAnimationFrame(update);
+}
+update();
+
+
+document.addEventListener("mousemove", (e) => {
+  pointer.x = e.clientX;
+  pointer.y = e.clientY;
 });
 
+document.addEventListener("touchmove", (e) => {
+  pointer.x = e.touches[0].clientX;
+  pointer.y = e.touches[0].clientY;
+}, { passive: false });
 
 function checkWin() {
   let win = true;
